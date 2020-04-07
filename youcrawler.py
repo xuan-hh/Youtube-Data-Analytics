@@ -377,7 +377,7 @@ def process_search(self,json_data):
 ##################
 
 if __name__ == '__main__':
-    session = YouCrawler('AIzaSyAwt-NVaQ7rLqkl5nXlTHxwvT3kNO2a3eg')
+    session = YouCrawler('')
     session.get_channel_id('universityofexeter')
     session.get_channel_name()
     session.get_upload_playlist_id()
