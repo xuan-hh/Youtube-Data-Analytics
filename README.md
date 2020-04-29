@@ -4,6 +4,8 @@ uploaded videos of a youtube channel, and transfer them to a human-readable form
 
 The code is not made to work for general use yet but feel free to mess with the some of inputs to achieve the results you want.
 
+![demo](https://github.com/xuan-hh/Youtube-Data-Analytics/blob/master/yd.PNG)
+
 ## Sample
 
 Here is a quick demonstration ran on University Of Exeter's Youtube Channel [7/4/2020]
