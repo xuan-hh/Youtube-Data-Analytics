@@ -37,3 +37,7 @@ Metadata fetched including:
 2. Introducing a GUI for general use by non-programmers.
 
 3. Introducing graphing methods such as view-to-like ratio.
+
+4. Perform Graph Visualisation on Youtube Data.
+
+5. Perform Statistical Inference / Machine Learning on Youtube Data.
