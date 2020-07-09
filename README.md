@@ -2,7 +2,9 @@
 This personal project of mine is intended to help users fetch metadata (title, views, likes, comments, video category) from all 
 uploaded videos of a youtube channel, and transfer them to a human-readable format in .csv.
 
-The code is not made to work for general use yet but feel free to mess with the some of inputs to achieve the results you want.
+Feel free to experiment with the some of the functionalities and inputs to achieve the results you want.
+
+Note the sample API key credentials in the code will NOT work. Please obtain your own API key from Youtube's Data API platform.
 
 ![demo](https://github.com/xuan-hh/Youtube-Data-Analytics/blob/master/yd.PNG)
 
