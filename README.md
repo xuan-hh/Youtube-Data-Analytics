@@ -6,7 +6,7 @@ Feel free to experiment with the some of the functionalities and inputs to achie
 
 Note the sample API key credentials in the code will NOT work. Please obtain your own API key from Youtube's Data API platform.
 
-![demo](https://github.com/xuan-hh/Youtube-Data-Analytics/blob/master/yd.PNG)
+![demo](https://github.com/xuan-hh/Youtube-Data-Analytics/blob/master/img/yd.PNG)
 
 ## Sample
 
