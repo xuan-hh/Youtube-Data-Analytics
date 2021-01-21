@@ -12,7 +12,7 @@ on Youtube using Youtube's API.
 '''
 
 
-class YouCrawler:
+class YouData:
     '''
     List of provided Youtube APIs
     Possible query types:
@@ -42,10 +42,10 @@ class YouCrawler:
         :param default: boolean indicating if there are multiple parameters? (True/False)
         '''
         if default:
-            url = YouCrawler.apis[query_type] + '?' + \
+            url = YouData.apis[query_type] + '?' + \
                 urllib.parse.urlencode(param, True)
         else:
-            url = YouCrawler.apis[query_type] + \
+            url = YouData.apis[query_type] + \
                 '?' + urllib.parse.urlencode(param)
 
         return requests.get(url).json()
@@ -377,7 +377,7 @@ def process_search(self,json_data):
 ##################
 
 if __name__ == '__main__':
-    session = YouCrawler('')
+    session = YouData('')
     session.get_channel_id('universityofexeter')
     session.get_channel_name()
     session.get_upload_playlist_id()
