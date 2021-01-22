@@ -4,7 +4,12 @@ import urllib.parse
 import urllib.request
 import json
 import sys
+import os
 
+'''
+Dependencies: requests, 
+'''
+import argParser
 
 '''
 Query statistics such as views,likes,video titles and top comments.
@@ -31,8 +36,47 @@ class YouData:
         'activities': 'https://www.googleapis.com/youtube/v3/activities',
     }
 
-    def __init__(self, APIkey):
-        self.APIkey = APIkey
+    def __init__(self, channel_input, output = "output.csv", is_channel_id = False):
+        '''
+        Constructor for YouData Object - sets up API key and relevant objects.
+        '''
+        # Get API Key.
+        api_key_pair = self.get_api_key()
+        assert api_key_pair, "API Key not initialised!"
+        self.APIkey = api_key_pair["auth_key"]
+
+        # Initialise channel name and id.
+        if not is_channel_id:
+            # input is in channel username format.
+            self.channel_name = channel_input
+            # Get and initialise Channel ID.
+            self.channel_id = self.get_channel_id(self.channel_name)
+
+        else:
+            # input is in channel id format.
+            self.channel_id = channel_input
+
+        # Get and initialise channel playlist.
+        self.get_upload_playlist_id()
+
+        # Get all video ids.
+        self.get_all_video_id()
+
+        # Finally, we write to csv file.
+        self.write_data_to_csv('all_video_ids.txt', output)
+
+        print("Execution is successful!")
+
+    def get_api_key(self):
+        # Get API key from auth.json file. Return None if it does not exists.
+        with open ('auth_key.json', 'a+') as f:
+            with open ('auth_key.json', 'r') as f2:
+                if not file_is_empty('auth_key.json'):
+                    data = json.load(f2)
+                    return data
+                else:
+                    return None
+
 
     def get_json(self, query_type, param, default=False):
         '''
@@ -48,7 +92,9 @@ class YouData:
             url = YouData.apis[query_type] + \
                 '?' + urllib.parse.urlencode(param)
 
-        return requests.get(url).json()
+        json_data = requests.get(url).json()
+        assert "error" not in json_data, json_data["error"]["message"]
+        return json_data
 
     def get_channel_id(self, channel_username, helper=False):
         '''
@@ -63,7 +109,6 @@ class YouData:
         }
 
         json_data = self.get_json('channels', param)
-        print(json_data)
         if not json_data['items']:  # If items is empty
             print("Can't find channel ID associated with username.")
             return False
@@ -72,9 +117,8 @@ class YouData:
         if temp_channel_id:
             self.channel_id = temp_channel_id
             if not helper:
-                print("%s's Youtube Channel ID is found: %s\nSaving channel ID..." % (
-                    channel_username, self.channel_id))
-            return self.channel_id
+                # print("DEBUG: %s's Youtube Channel ID is found: %s\nSaving channel ID..." % (channel_username, self.channel_id))
+                return self.channel_id
         else:
             print("Youtube Channel ID is not found.")
             return False
@@ -108,8 +152,8 @@ class YouData:
 
         if item_type == 'youtube#channel':
             channel_name = json_data['items'][0]['snippet']['title']
-            print("Channel name found: %s" % channel_name)
-            print("Saving Youtube channel name...")
+            # print("Channel name found: %s" % channel_name)
+            # print("DEBUG: Saving Youtube channel name...")
             self.channel_name = channel_name
 
     def get_upload_playlist_id(self, input=None, type="username", helper=False):
@@ -124,7 +168,7 @@ class YouData:
             if self.channel_id:
                 channel_id = self.channel_id
             elif self.channel_name:
-                channel_id = self.get_channel_name(channel_id)
+                channel_id = self.get_channel_name(self.channel_id)
             else:  # If both object channel name and ID are empty.
                 print("Please input or initialise Channel ID/username.")
                 return
@@ -146,6 +190,7 @@ class YouData:
         }
 
         json_data = self.get_json('channels', param)
+        print(json_data)
         self.upload_id = json_data["items"][0]['contentDetails']['relatedPlaylists']['uploads']
         print("Upload playlist id is found! : %s\nSaving upload's playlist id..." % (
             self.upload_id))
@@ -159,7 +204,7 @@ class YouData:
 
         '''
         if self.upload_id == None:
-            print('Please input or initialise upload_id method!')
+            print('Please input or initialise upload_id!')
             return
 
         param = {
@@ -170,7 +215,6 @@ class YouData:
         }
 
         json_data = self.get_json('playlistItems', param)
-        print(json_data)
         li_video_id = []
 
         total = 0
@@ -183,13 +227,12 @@ class YouData:
         # - request new json_data with new param
         while True:
             try:
-                print('Appending result number %d' % i)
+                # print('DEBUG: Appending result number %d' % i)
                 li_video_id.append(
                     json_data['items'][i]['contentDetails']['videoId'])
                 i += 1
             except IndexError:
-                print(
-                    'Reached end of page. Total of %d results collected on page %d' % (i, page))
+                # print('DEBUG: Reached end of page. Total of %d results collected on page %d' % (i, page))
                 # Increment total pages by number of results found on this page.
                 total += i+1
                 page += 1
@@ -198,12 +241,11 @@ class YouData:
                     param['pageToken'] = json_data['nextPageToken']
                     json_data = self.get_json('playlistItems', param)
                 except KeyError:
-                    print('nextPageToken missing on page %d.' % page)
+                    # print('DEBUG: nextPageToken missing on page %d.' % page)
                     break  # exit loop
 
-        print('Total results collated are %d, sifting through %d pages.' %
-              (total, page))
-        print('List of video_ids assigned to self.video_ids.')
+        # print('DEBUG: Total results collated are %d, sifting through %d pages.' % (total, page))
+        # print('DEBUG: List of video_ids assigned to self.video_ids.')
 
         self.video_ids = li_video_id
         with open(default, 'w') as f:
@@ -247,7 +289,7 @@ class YouData:
             param['id'] = ','.join(process_ids)
 
             json_data = self.get_json('videos', param, True)
-
+            
             for i in range(json_data['pageInfo']['totalResults']):
                 if json_data['items'][i]['id'] not in cache_crosscheck:
                     cache_crosscheck[json_data['items'][i]['id']] = None
@@ -255,51 +297,44 @@ class YouData:
                         title = json_data['items'][i]['snippet']['title']
                     except:
                         title = ''
-                        print('Title missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Title missing from %s.' % json_data['items'][i]['id'])
                     try:
                         description = json_data['items'][i]['snippet']['description']
                     except:
                         description = ''
-                        print('Description missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Description missing from %s.' % json_data['items'][i]['id'])
                     try:
                         views = json_data['items'][i]['statistics']['viewCount']
                     except:
                         views = ''
-                        print('Views missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Views missing from %s.' % json_data['items'][i]['id'])
                     try:
                         likes = json_data['items'][i]['statistics']['likeCount']
                     except:
                         likes = ''
-                        print('Likes missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Likes missing from %s.' % json_data['items'][i]['id'])
                     try:
                         dislikes = json_data['items'][i]['statistics']['dislikeCount']
                     except:
                         dislikes = ''
-                        print('Dislikes missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Dislikes missing from %s.' % json_data['items'][i]['id'])
                     try:
                         comments = json_data['items'][i]['statistics']['commentCount']
                     except:
                         comments = ''
-                        print('Comments missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Comments missing from %s.' % json_data['items'][i]['id'])
                     try:
                         tags = ','.join(
                             json_data['items'][i]['snippet']['tags'])
                     except:
                         tags = ''
-                        print('Tags missing from %s.' %
-                              json_data['items'][i]['id'])
+                        # print('DEBUG: Tags missing from %s.' % json_data['items'][i]['id'])
 
-                    print('Appending result number %d.' % total)
+                    # print('DEBUG: Appending result number %d.' % total)
                     items.append([title, description, views,
                                   likes, dislikes, comments, tags])
                     total += 1
-        print('Total number of results appended is %d' % total)
+        # print('DEBUG: Total number of results appended is %d' % total)
         return headers, items
 
     def write_data_to_csv(self, readpath, writepath, function_type=None):
@@ -317,7 +352,7 @@ class YouData:
         with open(readpath, 'r', encoding='utf-8-sig') as readpath:
             # video ids contained in a list.
             li_video_ids = readpath.read().splitlines()
-            print(li_video_ids)  # Line for debugging.
+            # print("DEBUG: List of video ids", li_video_ids)
 
             with open(writepath, 'w', encoding='utf-8-sig') as writepath:
                 headers, items = function_type(li_video_ids)
@@ -327,6 +362,28 @@ class YouData:
                 for row in items:
                     writer.writerow(row)
 
+
+def file_is_empty(filename):
+    if os.stat(filename).st_size == 0:
+        return True
+    return False
+
+def main():
+    args = argParser.argParser()
+    if argParser.ready_to_write(args):
+        output_filename = "output.csv"
+        if args.csv:
+            output_filename = args.y + ".csv"
+            return
+        channel_name = args.x
+        
+        # -id flag specifies whether to query using channel id format.
+        use_channel_id = args.id
+        session = YouData(channel_name, output_filename, use_channel_id)
+        
+
+if __name__ == '__main__':
+    main()
 
 ##################
 # Improvements
@@ -375,11 +432,3 @@ def process_search(self,json_data):
 '''
 
 ##################
-
-if __name__ == '__main__':
-    session = YouData('')
-    session.get_channel_id('universityofexeter')
-    session.get_channel_name()
-    session.get_upload_playlist_id()
-    session.get_all_video_id()
-    session.write_data_to_csv('all_video_ids.txt', 'exeter.csv')
