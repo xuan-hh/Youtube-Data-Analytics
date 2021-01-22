@@ -12,7 +12,7 @@ Note the sample API key credentials in the code will NOT work. Please obtain you
 
 0. Install all dependency libraries.
 
-1. Initialise / update your Youtube API key with the -api flag.
+1. Initialise / update your Youtube API key with the -api flag. (Refer to https://developers.google.com/youtube/v3/getting-started on how to obtain your own API key)
 
 ```python3 <api_key> -api```
 
