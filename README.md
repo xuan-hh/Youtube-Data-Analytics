@@ -1,12 +1,36 @@
-# Youtube Data Analytics
-This personal project of mine is intended to help users fetch metadata (title, views, likes, comments, video category) from all 
-uploaded videos of a youtube channel, and transfer them to a human-readable format in .csv.
+# YouData
+YouData helps users fetch data / metadata (E.g. title, views, likes, comments, video category) from all 
+uploaded videos of a youtube channel. The output is saved in a csv file.
 
 Feel free to experiment with the some of the functionalities and inputs to achieve the results you want.
 
 Note the sample API key credentials in the code will NOT work. Please obtain your own API key from Youtube's Data API platform.
 
 ![demo](https://github.com/xuan-hh/Youtube-Data-Analytics/blob/master/img/yd.PNG)
+
+## Usage
+
+0. Install all dependency libraries.
+
+1. Initialise / update your Youtube API key with the -api flag.
+
+```python3 <api_key> -api```
+
+2. Get your data.
+
+You have 2 options here:
+
+a) Use the channel name. (youtube.com/user/**universityofexeter**)
+
+```python3 <channel_name/universityofexeter>```
+
+b) Use the channel id. You have to specify the -id flag.
+
+```python3 <channel_id> -id```
+
+3. Find output.csv in root directory.
+
+Done!
 
 ## Sample
 
