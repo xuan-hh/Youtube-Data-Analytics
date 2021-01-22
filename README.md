@@ -14,23 +14,23 @@ Note the sample API key credentials in the code will NOT work. Please obtain you
 
 1. Initialise / update your Youtube API key with the -api flag. (Refer to https://developers.google.com/youtube/v3/getting-started on how to obtain your own API key)
 
-```python3 <api_key> -api```
+    ```python3 <api_key> -api```
 
 2. Get your data.
 
-You have 2 options here:
+    You have 2 options here:
 
-a) Use the channel name. (youtube.com/user/**universityofexeter**)
+    a) Use the channel name. (youtube.com/user/**universityofexeter**)
 
-```python3 <channel_name/universityofexeter>```
+    ```python3 <channel_name/universityofexeter>```
 
-b) Use the channel id. You have to specify the -id flag.
+    b) Use the channel id. You have to specify the -id flag.
 
-```python3 <channel_id> -id```
+    ```python3 <channel_id> -id```
 
 3. Find output.csv in root directory.
 
-Done!
+    Done!
 
 ## Sample
 
